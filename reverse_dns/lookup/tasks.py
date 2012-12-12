@@ -233,7 +233,6 @@ def add_domains_task(user, ip_address, domains):
 			domainobj.created_date = datetime.now()
 			domainobj.updated_date = datetime.now()
 			domainobj.save()
-			email_domains.append(domainobj)
 		# if domainobj:
 		# 	email_domains.append(domainobj)
 		# 	if not domainobj.created_date:
@@ -243,7 +242,8 @@ def add_domains_task(user, ip_address, domains):
 
 		# 		domainobj.updated_date = datetime.now()
 			try:
-				call_whois(domainobj, ipobj)	
+				call_whois(domainobj, ipobj)
+				email_domains.append(domainobj)
 				domainobj.save()
 			except Exception, e:
 				print 'exception occured'
