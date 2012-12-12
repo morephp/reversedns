@@ -53,7 +53,7 @@ def get_or_create_object(lookupobj, **kwargs):
 		obj.save()
 		return obj
 
-def write_csv(domains, ipobj, old_domains, LAST_UPLOADED_DATE):
+def write_csv(domains, ipobj):
 	import csv
 	import codecs
 	with open('%s/%s.%s.csv' % (settings.WHOIS_OUTPUT_DIR, ipobj.ip_address, DATE), 'w') as csvfile:
@@ -91,45 +91,45 @@ def write_csv(domains, ipobj, old_domains, LAST_UPLOADED_DATE):
 			row.append(contacts)
 			writer.writerow(row)
 
-		if len(old_domains) > 0:
-			writer.writerow([])
-			writer.writerow(['Domains Added on %s' % LAST_UPLOADED_DATE or ''])
-			writer.writerow([])
+		# if len(old_domains) > 0:
+		# 	writer.writerow([])
+		# 	writer.writerow(['Domains Added on %s' % LAST_UPLOADED_DATE or ''])
+		# 	writer.writerow([])
 
-		for domain in old_domains:
-			row = []
-			row.append(domain.domain_name)
-			row.append(domain.registrar.replace('|','').replace('\n', ' ').replace(',',' '))
-			row.append(domain.whois_server_url)
-			row.append(str(domain.domain_created_date))
-			row.append(str(domain.domain_updated_date))
-			row.append(str(domain.domain_expiration_date))
+		# for domain in old_domains:
+		# 	row = []
+		# 	row.append(domain.domain_name)
+		# 	row.append(domain.registrar.replace('|','').replace('\n', ' ').replace(',',' '))
+		# 	row.append(domain.whois_server_url)
+		# 	row.append(str(domain.domain_created_date))
+		# 	row.append(str(domain.domain_updated_date))
+		# 	row.append(str(domain.domain_expiration_date))
 			
-			nameserver = ''
-			for server in domain.nameservers():
-				nameserver += server.replace('|','') + ' '
-			row.append(nameserver)
+		# 	nameserver = ''
+		# 	for server in domain.nameservers():
+		# 		nameserver += server.replace('|','') + ' '
+		# 	row.append(nameserver)
 			
-			#stat = ''
-			#for status in domain.statuses():
-			#	stat += status.replace('|','') + ' '
-			#row.append(stat)
+		# 	#stat = ''
+		# 	#for status in domain.statuses():
+		# 	#	stat += status.replace('|','') + ' '
+		# 	#row.append(stat)
 
-			contacts = ''
-			for contact in domain.contacts():
-				contacts += contact.replace('|','') + ' '
+		# 	contacts = ''
+		# 	for contact in domain.contacts():
+		# 		contacts += contact.replace('|','') + ' '
 			
-			contacts = contacts.replace('None',' ')
-			row.append(contacts)
+		# 	contacts = contacts.replace('None',' ')
+		# 	row.append(contacts)
 
 
-			print row
-			writer.writerow(row)
+			# print row
+			# writer.writerow(row)
 		return True
 
-def email_admin(user, domains, ipobj, old_domains, LAST_UPLOADED_DATE):
+def email_admin(user, domains, ipobj):
 	if len(domains) > 0:
-		if write_csv(domains, ipobj, old_domains, LAST_UPLOADED_DATE):
+		if write_csv(domains, ipobj):
 			import os
 			filepath = os.path.abspath('%s/%s.%s.csv' % (settings.WHOIS_OUTPUT_DIR, ipobj.ip_address, DATE))
 			subject = 'New Domains for IP %s' % ipobj.ip_address
@@ -226,10 +226,13 @@ def add_domains_task(user, ip_address, domains):
 	email_domains = []
 	for domain in domains.splitlines():
 		if len(domain) == 0: continue
-		#domainobj = get_or_create_object(models.Domain, **dict(domain_name=domain.replace('\n','').strip(), ip_address=ipobj, entity_active=True))
-		domainobj = models.Domain(**dict(ip_address=ipobj, domain_name=domain, entity_active=True, created_date=datetime.now(), updated_date=datetime.now()))
+		domainobj = get_or_create_object(models.Domain, **dict(domain_name=domain.replace('\n','').strip(), ip_address=ipobj, entity_active=True))
+		# domainobj = models.Domain(**dict(ip_address=ipobj, domain_name=domain, entity_active=True))
 		domainobj.save()
-		email_domains.append(domainobj)
+		if not domainobj.created_date:
+			domainobj.created_date = datetime.now()
+			domainobj.updated_date = datetime.now()
+			email_domains.append(domainobj)
 		# if domainobj:
 		# 	email_domains.append(domainobj)
 		# 	if not domainobj.created_date:
@@ -244,18 +247,18 @@ def add_domains_task(user, ip_address, domains):
 		except:
 			print 'exception occured'
 			pass
-	try:
-		uploaded = ipobj.ipuploaded_set.all().order_by('-uploaded_date')[:1]
-		LAST_UPLOADED_DATE = uploaded[0].__unicode__()
-		print LAST_UPLOADED_DATE
-		old_domains = models.Domain.objects.filter(created_date__range=(uploaded[0].uploaded_date,uploaded[0].uploaded_date+datetime_mod.timedelta(days=1)))
-	except Exception, e:
-		print '>>>>>>>>>>>>>>'
-		print e.message
-		LAST_UPLOADED_DATE = ''
-		old_domains = []
+	# try:
+	# 	# uploaded = ipobj.ipuploaded_set.all().order_by('-uploaded_date')[:1]
+	# 	# LAST_UPLOADED_DATE = uploaded[0].__unicode__()
+	# 	# print LAST_UPLOADED_DATE
+	# 	# old_domains = models.Domain.objects.filter(created_date__range=(uploaded[0].uploaded_date,uploaded[0].uploaded_date+datetime_mod.timedelta(days=1)))
+	# except Exception, e:
+	# 	print '>>>>>>>>>>>>>>'
+	# 	print e.message
+	# 	LAST_UPLOADED_DATE = ''
+	# 	old_domains = []
 
-	email_admin(user, email_domains, ipobj, old_domains, LAST_UPLOADED_DATE)
+	email_admin(user, email_domains, ipobj)
 
 class AddDomainsTask(Task):
 	def run(self,user, ip_address, domains, **kwargs):
