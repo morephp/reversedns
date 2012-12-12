@@ -1,0 +1,40 @@
+.frm {
+	width: 20%;
+	height: 500px;
+}
+
+.frm div {
+	width: 100%;
+	height:70px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    color: gray;
+   	
+    letter-spacing: 0.2em;
+    font-size: 8pt;
+    border-radius: 5px; 
+    font-family: Georgia, Arial, Helvetica, Serif;
+    padding: 2px 2 2 2px;
+    font-size: 8pt;
+    text-align: center;
+    display:block;
+}
+
+.frm div input {
+	width: 200px;
+    height: 30px;
+    font-size: 14pt;
+    text-align: center;
+}
+
+#add_ip {
+	width:130px;
+	height: 45px;
+	font-weight: bold;
+	font-family: Georgia, Arial, Helvetica, Serif;
+	font-size: 12pt;
+}
+
+#add_ip img {
+	width:20px;
+}

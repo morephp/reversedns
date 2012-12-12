@@ -1,0 +1,65 @@
+{%extends "base.html"%}
+{% load resolve_attr %}
+{%block header_tag %}
+<script>
+	var reverse_dns = reverse_dns || {};	
+	reverse_dns.utils = reverse_dns.utils || {};
+	reverse_dns.lookup = reverse_dns.lookup || {};
+
+	$(function(){
+		
+
+		var aaColumns = [
+			{'sTitle' : 'IP Address'},
+			{'sTitle' : 'Uploaded Date'},
+		];
+
+		//datatable = reverse_dns.utils.datatable_factory(true, 
+		//		'{%url paginate_domains %}', aaColumns, $("#ip_uploaded_table"), null, reverse_dns.lookup.paginate_success);
+
+		reverse_dns.utils.datatable_factory(true, '{%url paginate_domains %}', aaColumns, $("#ip_uploaded_table"), 
+			null, reverse_dns.lookup.paginate_success);
+
+
+	});
+
+
+</script>
+{%endblock%}
+{%block content%}
+<h3>Please Enter an IP Address and Select a File</h3>
+<div style="height:100px;"></div>
+<div style="width:100%;height:300px">
+	<form name="add_domains" method="post" enctype="multipart/form-data">
+		<div style="width:100%;height:50px;">
+			<div style="width:15%;float:left;">
+				IP Address: 
+			</div>
+			<div style="width:40%;float:left;">
+				<input type="text" name="ip_address" />
+			</div>
+		</div>
+		<div style="width:100%;height:50px;">
+			<div style="width:15%;float:left;">
+				Domains File: </div>
+			<div style="width:40%;float:left;">
+				<input type="file" name="domains"/>
+			</div>
+		</div>
+		<br/><br/>
+		<div style="width:100%;height:50px;">
+			{%csrf_token%}
+			<input type="submit" value="Continue"/>
+		</div>
+		<div style="width:75%">
+			<table id="ip_uploaded_table" ></table>
+		</div>
+		
+	</form>
+</div>
+
+{%if message %}
+	{{message}}
+{%endif%}
+
+{%endblock%}

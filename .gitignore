@@ -1,0 +1,13 @@
+*.pyc
+*.egg-info
+runserver.sh
+build/
+dist/
+*.db
+reverse_dns/static/
+nohup.out
+.DS_STORE
+.project
+.pydevproject
+._*
+*settings.py

@@ -1,0 +1,57 @@
+{% load resolve_attr %}
+<h3>Sample Email</h3>
+{%for domain in domains %}
+	{%for key in domain.attrs %}
+	<div style="width:100%;">
+		<div style="width:30%;float:left;">
+			{{key|replace:"_"}}
+		</div>
+		<div style="width:70%;float:left;">
+			<p>
+			{{domain|get_attr:key}}
+			</p>
+			<br/><br/>
+		</div>
+	</div>
+	{%endfor%}
+	{%for nameserver in domain.nameservers %}
+		<div style="width:100%;">
+			<div style="width:30%;float:left;">
+				Name Server:
+			</div>
+			<div style="width:70%;float:left;">
+				<p>
+				{{nameserver}}
+				</p>
+				<br/><br/>
+			</div>
+		</div>
+	{%endfor%}
+	{%for status in domain.statuses %}
+		<div style="width:100%;">
+			<div style="width:30%;float:left;">
+				Status:
+			</div>
+			<div style="width:70%;float:left;">
+				<p>
+				{{status}}
+				</p>
+				<br/><br/>
+			</div>
+		</div>
+	{%endfor%}
+	{%for contact in domain.contacts %}
+		<div style="width:100%;">
+			<div style="width:30%;float:left;">
+				Domain Contact:
+			</div>
+			<div style="width:70%;float:left;">
+				<p>
+				{{contact}}
+				</p>
+				<br/><br/>
+			</div>
+		</div>
+	{%endfor%}
+
+{%endfor%}

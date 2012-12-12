@@ -1,0 +1,30 @@
+{%extends "base.html"%}
+{%block content%}
+<div style="height:50px;"><h3>Please enter your user name and password to login to get started</h3></div>
+
+{%if error %} <h3>{{error}}</h3>{%endif%}
+<div style="height:100px;"></div>
+<div style="width:100%;height:300px">
+	<form method="post" name="login">
+		{%csrf_token%}
+		<div style="width:100%;height:50px;">
+			<div style="width:15%;float:left;">
+				User Name: 
+			</div>
+			<div style="width:40%;float:left;">
+				<input type="text" name="username" value="{{ username }}"/>
+			</div>
+		</div>
+		<div style="width:100%;height:50px;">
+			<div style="width:15%;float:left;">
+				Password: </div>
+			<div style="width:40%;float:left;">
+				<input type="password" title="Please Enter Your Password" name="password" value="{{ password }}"/>
+			</div>
+		</div>
+		<div style="width:100%;height:50px;">
+			<input type="submit" value="Log In" /> </div>	
+		</div>
+	</form>
+</div>
+{%endblock%}
