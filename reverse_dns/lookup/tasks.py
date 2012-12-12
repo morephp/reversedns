@@ -241,12 +241,12 @@ def add_domains_task(user, ip_address, domains):
 		# 	else:
 
 		# 		domainobj.updated_date = datetime.now()
-		try:
-			call_whois(domainobj, ipobj)	
-			domainobj.save()
-		except:
-			print 'exception occured'
-			pass
+			try:
+				call_whois(domainobj, ipobj)	
+				domainobj.save()
+			except:
+				print 'exception occured'
+				pass
 	# try:
 	# 	# uploaded = ipobj.ipuploaded_set.all().order_by('-uploaded_date')[:1]
 	# 	# LAST_UPLOADED_DATE = uploaded[0].__unicode__()
