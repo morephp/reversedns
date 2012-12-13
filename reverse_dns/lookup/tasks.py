@@ -222,43 +222,51 @@ def call_whois(domain, ipobj):
 
 
 def add_domains_task(user, ip_address, domains):
+	
 	ipobj = get_or_create_object(models.IPAddress, **dict(ip_address=ip_address, entity_active=True))
 	email_domains = []
+	lookupdomains = []
+	
 	for domain in domains.splitlines():
 		if len(domain) == 0: continue
-		domainobj = get_or_create_object(models.Domain, **dict(domain_name=domain.replace('\n','').strip(), ip_address=ipobj, entity_active=True))
-		# domainobj = models.Domain(**dict(ip_address=ipobj, domain_name=domain, entity_active=True))
-		domainobj.save()
-		if not domainobj.created_date:
+		lookupdomains.append(omain.replace('\n','').strip())
+
+	domainobjects = models.Domain.objects.exclude( 
+				ip_address__in=models.IPAddress.objects.exclude(ip_address=ipobj.ip_address), 
+				entity_active=True))
+
+	if len(domainobjects) == 0:
+		for domain in lookupdomains:
+			domainobj = models.Domain(domain_name=domain, ip_address=ipobj, entity_active=True)
 			domainobj.created_date = datetime.now()
 			domainobj.updated_date = datetime.now()
 			domainobj.save()
-		# if domainobj:
-		# 	email_domains.append(domainobj)
-		# 	if not domainobj.created_date:
-		# 		domainobj.created_date = datetime.now()
-		# 		domainobj.updated_date = datetime.now()
-		# 	else:
 
-		# 		domainobj.updated_date = datetime.now()
 			try:
 				call_whois(domainobj, ipobj)
 				email_domains.append(domainobj)
-				domainobj.save()
+				
 			except Exception, e:
 				print 'exception occured'
-				print e.message
-				pass
-	# try:
-	# 	# uploaded = ipobj.ipuploaded_set.all().order_by('-uploaded_date')[:1]
-	# 	# LAST_UPLOADED_DATE = uploaded[0].__unicode__()
-	# 	# print LAST_UPLOADED_DATE
-	# 	# old_domains = models.Domain.objects.filter(created_date__range=(uploaded[0].uploaded_date,uploaded[0].uploaded_date+datetime_mod.timedelta(days=1)))
-	# except Exception, e:
-	# 	print '>>>>>>>>>>>>>>'
-	# 	print e.message
-	# 	LAST_UPLOADED_DATE = ''
-	# 	old_domains = []
+
+	else:
+		for domain in lookupdomains:
+			try:
+				obj = domainobjects.get(domain_name=domain)
+				print '%s found' % obj.domain_name
+			except models.Domain.DoesNotExist:
+				domainobj = models.Domain(domain_name=domain, ip_address=ipobj, entity_active=True)
+				print '%s created' % domainobj.domain_name
+				domainobj.created_date = datetime.now()
+				domainobj.updated_date = datetime.now()
+				domainobj.save()
+
+				try:
+					call_whois(domainobj, ipobj)
+					email_domains.append(domainobj)
+				
+				except Exception, e:
+					print 'exception occured'
 
 	email_admin(user, email_domains, ipobj)
 
